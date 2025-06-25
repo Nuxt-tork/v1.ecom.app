@@ -17,7 +17,7 @@
                 </div>
             </div>
 
-            <form action="" method="POST" id="userLoginForm" enctype="multipart/form-data">
+            <form action="{{ route('user.login') }}" method="POST" id="userLoginForm" enctype="multipart/form-data">
                 @csrf
                 <div class="row">
                     
@@ -25,7 +25,7 @@
                         <input type="text" id="email_or_phone" name="email_or_phone" placeholder="Email Or Phone">
                     </div>
                     <div class="col-lg-12">
-                        <input type="password" id="login-password" name="password" placeholder="Password">
+                        <input type="password" id="password" name="password" placeholder="Password">
                     </div>
                     <div class="col-lg-12 text-center">
                         <button type="submit" class="site-btn">LOGIN</button>
