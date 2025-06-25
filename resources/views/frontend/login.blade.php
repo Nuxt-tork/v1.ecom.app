@@ -43,6 +43,9 @@
             
         </div>
         <div class="col-lg-12 text-center mt-3">
+            <p>Forgot Password? <a href="">Recover here</a></p>
+        </div>
+        <div class="col-lg-12 text-center mt-3">
             <p>Don  't have an account? <a href="{{ route('frontend.register') }}">Register here</a></p>
         </div>
     </div>

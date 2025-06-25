@@ -57,6 +57,10 @@
             </form>
 
                 <div class="col-lg-12 text-center mt-3">
+                    <p>Forgot Password? <a href="">Recover here</a></p>
+                </div>
+
+                <div class="col-lg-12 text-center mt-3">
                     <p>Already have an account? <a href="{{ route('frontend.login') }}">Login here</a></p>
                 </div>
 
@@ -66,6 +70,8 @@
                         Register with Google
                     </a>
                 </div>
+
+              
 
 
         </div>
