@@ -20,27 +20,26 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request)//: Response
+    public function store(Request $request) //: Response
     {
 
         // dd($request->all());
-        $auth_index_name=env('AUTH_PHONE_SUPPORT')? 'email_or_phone':'email';
-        if(filter_var($request[$auth_index_name], FILTER_VALIDATE_EMAIL))
-        {
+        $auth_index_name = env('AUTH_PHONE_SUPPORT') ? 'email_or_phone' : 'email';
+        if (filter_var($request[$auth_index_name], FILTER_VALIDATE_EMAIL)) {
 
             // dd('in email');
-            $fixed_country_code=env('FIXED_COUNTRY_CODE');
+            $fixed_country_code = env('FIXED_COUNTRY_CODE');
             $request->validate([
                 'name' => ['required', 'string', 'max:255'],
 
-                'country_code' => $fixed_country_code!=''? 'nullable':'required',
+                'country_code' => $fixed_country_code != '' ? 'nullable' : 'required',
 
                 $auth_index_name => 'required|lowercase|email|max:255|unique:users,email',
 
                 'password' => ['required', 'confirmed', 'min:6'],
             ]);
 
-            $country_code=$fixed_country_code?? $request->country_code;
+            $country_code = $fixed_country_code ?? $request->country_code;
 
             $user = new User;
             $user->name = $request->name;
@@ -53,29 +52,27 @@ class RegisteredUserController extends Controller
             $user->save();
 
             // dd('completed');
-            
-        }
-        else
-        {
 
-             dd('in phone');
-            $fixed_country_code=env('FIXED_COUNTRY_CODE');
+        } else {
+
+            dd('in phone');
+            $fixed_country_code = env('FIXED_COUNTRY_CODE');
             $request->validate([
                 'name' => ['required', 'string', 'max:255'],
-                'country_code' => $fixed_country_code!=''? 'nullable':'required',
+                'country_code' => $fixed_country_code != '' ? 'nullable' : 'required',
                 $auth_index_name => [
                     'required',
                     'regex:/^[0-9]+$/',
                     Rule::unique('users', 'phone')->where(function ($query) {
-                        return $query->where('country_code', $fixed_country_code?? request('country_code'));
+                        return $query->where('country_code', $fixed_country_code ?? request('country_code'));
                     }),
                 ],
-                'otp' =>['required', 'integer'],
+                'otp' => ['required', 'integer'],
                 'password' => ['required', 'confirmed', Rules\Password::defaults()],
             ]);
 
 
-            $country_code=$fixed_country_code?? $request->country_code;
+            $country_code = $fixed_country_code ?? $request->country_code;
 
 
             // $check_otp_query = DB::table('phone_otps')->where([
@@ -87,7 +84,7 @@ class RegisteredUserController extends Controller
 
 
             // $check_otp =$check_otp_query->first();
-            
+
             // if ($check_otp!='') 
             // {
             //     $check_otp_query->delete();
@@ -106,7 +103,6 @@ class RegisteredUserController extends Controller
             $user->phone = $request[$auth_index_name];
             $user->password = null;
             $user->save();
-
         }
 
         // event(new Registered($user));
@@ -114,7 +110,7 @@ class RegisteredUserController extends Controller
         Auth::login($user);
 
         // dd('here afte');
-        return redirect('/')->with('success', 'Registered Successfully!');
+        return redirect('/')->with('frontend_success', 'Registered Successfully!');
 
         // return apiResponse($result=true,$message="Registration Successfull",$data=null,$code=201);
     }

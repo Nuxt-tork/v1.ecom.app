@@ -19,8 +19,10 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect('/')->with('success', 'Login Successful!');
+        return redirect('/')->with('frontend_success', 'Login Successful!');
         // return response()->noContent();
+
+        // return redirect('/')->with('frontend_success', 'Login Successful!');
     }
 
     /**
@@ -34,6 +36,6 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect('/')->with('frontend_success', 'Logout Successful!');
     }
 }

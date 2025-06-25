@@ -14,11 +14,9 @@
 
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;900&display=swap" rel="stylesheet">
-  
-    <!-- Font Awesome CDN -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-k5vCCHyYkQZfAqTV38UVmNwZkF28+6UM0LfGu9JDA8R7Y9VfI7KjKXpA1eECm1vEwQgItKkqzvTxlMHqu7i5Vg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
- 
+    <!-- SweetAlert2 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.6.9/dist/sweetalert2.min.css" rel="stylesheet">
 
     <!-- Css Styles -->
    <link rel="stylesheet" href="{{ asset('frontend/assets/css/bootstrap.min.css') }}" type="text/css">
@@ -29,6 +27,8 @@
     <link rel="stylesheet" href="{{ asset('frontend/assets/css/owl.carousel.min.css') }}" type="text/css">
     <link rel="stylesheet" href="{{ asset('frontend/assets/css/slicknav.min.css') }}" type="text/css">
     <link rel="stylesheet" href="{{ asset('frontend/assets/css/style.css') }}" type="text/css">
+
+
 
 </head>
 
@@ -278,6 +278,9 @@
     </footer>
     <!-- Footer Section End -->
 
+    {{-- Sweet Alert --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.6.9/dist/sweetalert2.all.min.js"></script>
+
     <!-- Js Plugins -->
     <script src="{{ asset('frontend/assets/js/jquery-3.3.1.min.js') }}"></script>
     <script src="{{ asset('frontend/assets/js/bootstrap.min.js') }}"></script>
@@ -285,11 +288,23 @@
     <script src="{{ asset('frontend/assets/js/jquery.nice-select.min.js') }}"></script>
     <script src="{{ asset('frontend/assets/js/jquery.slicknav.js') }}"></script>
     <script src="{{ asset('frontend/assets/js/main.js') }}"></script>
+    <script src="{{ asset('frontend/assets/js/custom.js') }}"></script>
     <script src="{{ asset('frontend/assets/js/mixitup.min.js') }}"></script>
     <script src="{{ asset('frontend/assets/js/owl.carousel.min.js') }}"></script>
 
+    @if (session('frontend_success'))
+        <script>
+            window.addEventListener('DOMContentLoaded', () => {
+                showToast({
+                    icon: 'success',
+                    title: 'Success',
+                    text: @json(session('frontend_success')),
+                });
+            });
+        </script>
+    @endif
 
-
+    @stack('frontend_scripts')
 
 </body>
 

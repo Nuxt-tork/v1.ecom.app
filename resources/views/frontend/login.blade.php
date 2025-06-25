@@ -17,12 +17,22 @@
                 </div>
             </div>
 
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul class="mb-0" style="list-style: none; padding-left: 0;">
+                        @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <form action="{{ route('user.login') }}" method="POST" id="userLoginForm" enctype="multipart/form-data">
                 @csrf
                 <div class="row">
                     
                     <div class="col-lg-12">
-                        <input type="text" id="email_or_phone" name="email_or_phone" placeholder="Email Or Phone">
+                        <input type="text" id="email_or_phone" value="{{ old('email_or_phone') }}" name="email_or_phone"   placeholder="Email Or Phone">
                     </div>
                     <div class="col-lg-12">
                         <input type="password" id="password" name="password" placeholder="Password">
@@ -43,7 +53,7 @@
             
         </div>
         <div class="col-lg-12 text-center mt-3">
-            <p>Forgot Password? <a href="">Recover here</a></p>
+            <p>Forgot Password? <a href="{{ route('frontend.forgot-password') }}">Recover here</a></p>
         </div>
         <div class="col-lg-12 text-center mt-3">
             <p>Don  't have an account? <a href="{{ route('frontend.register') }}">Register here</a></p>

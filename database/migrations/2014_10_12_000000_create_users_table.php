@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('email')->unique()->nullable();
             $table->string('country_code')->nullable();
             $table->string('phone')->nullable();
+            $table->string('address')->nullable();
             $table->string('notify_by')->nullable();
             $table->string('signup_by')->nullable();
             $table->integer('provider_id')->nullable();
@@ -25,7 +26,7 @@ return new class extends Migration
             $table->text('two_factor_recovery_codes')->nullable();
             $table->string('verification_code')->nullable();
             $table->string('facebook_id')->nullable();
-            $table->string('google_id')->nullable();   
+            $table->string('google_id')->nullable();
             //ADDITIONAL_COLUMN
             $table->integer('is_active')->default(1);
             $table->rememberToken();

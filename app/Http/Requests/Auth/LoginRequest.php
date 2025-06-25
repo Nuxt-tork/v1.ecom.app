@@ -2,13 +2,13 @@
 
 namespace App\Http\Requests\Auth;
 
-use Illuminate\Auth\Events\Lockout;
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
+use Illuminate\Auth\Events\Lockout;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
-use Hash;
 
 class LoginRequest extends FormRequest
 {
@@ -27,9 +27,9 @@ class LoginRequest extends FormRequest
      */
     public function rules(): array
     {
-        $auth_index_name=env('AUTH_PHONE_SUPPORT')? 'email_or_phone':'email';
+        $auth_index_name = env('AUTH_PHONE_SUPPORT') ? 'email_or_phone' : 'email';
         return [
-            'country_code' => [env('FIXED_COUNTRY_CODE')? 'nullable':'required', 'string'],
+            'country_code' => [env('FIXED_COUNTRY_CODE') ? 'nullable' : 'required', 'string'],
             $auth_index_name => ['required', 'string'],
             'password' => ['required', 'string'],
         ];
@@ -45,7 +45,7 @@ class LoginRequest extends FormRequest
         $this->ensureIsNotRateLimited();
 
         $this->login();
-        
+
         RateLimiter::clear($this->throttleKey());
     }
 
@@ -77,55 +77,95 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->input('email')).'|'.$this->ip());
+        return Str::transliterate(Str::lower($this->input('email')) . '|' . $this->ip());
     }
 
 
 
+    // public function login()
+    // {
+    //     $country_code=env('FIXED_COUNTRY_CODE')?? $this->input('country_code');
+    //     $auth_index_name=env('AUTH_PHONE_SUPPORT')? 'email_or_phone':'email';
+
+    //     $email_or_phone=$this->input($auth_index_name);
+
+    //     $user = \App\Models\User::where(function ($query1) use($email_or_phone,$country_code) {
+    //                     $query1->where(function ($query2) use($email_or_phone) {
+    //                         $query2->whereIn('signup_by', ['email','both'])
+    //                               ->where('email',$email_or_phone);
+    //                     })
+    //                     ->orWhere(function ($query3) use($email_or_phone,$country_code) {
+    //                         $query3->whereIn('signup_by', ['phone','both'])
+    //                               ->where('country_code',$country_code)
+    //                               ->where('phone',$email_or_phone);
+    //                     });
+    //                 })
+    //                 ->first();
+
+    //     if($user!='')
+    //     {
+
+    //         if(Hash::check($this->input('password'), $user->password)) 
+    //         {
+    //             Auth::login($user);
+    //             if(env('USER_ONE_DEVICE_LOGIN'))
+    //             {
+    //                 logOutFromOtherDevice();
+    //             }
+    //         } 
+    //         else 
+    //         {
+    //             throw ValidationException::withMessages([
+    //                 'message' => "Invalid phone or password",
+    //             ]);
+    //         }
+    //     }
+    //     else
+    //     {
+    //         throw ValidationException::withMessages([
+    //             'message' => "Invalid credentials",
+    //         ]);
+    //     }
+
+    // }
+
     public function login()
     {
-        $country_code=env('FIXED_COUNTRY_CODE')?? $this->input('country_code');
-        $auth_index_name=env('AUTH_PHONE_SUPPORT')? 'email_or_phone':'email';
+        $country_code = env('FIXED_COUNTRY_CODE') ?? $this->input('country_code');
+        $auth_index_name = env('AUTH_PHONE_SUPPORT') ? 'email_or_phone' : 'email';
+        $email_or_phone = $this->input($auth_index_name);
+        $password = $this->input('password');
 
-        $email_or_phone=$this->input($auth_index_name);
+        // Step 1: Try to find the user
+        $user = \App\Models\User::where(function ($query) use ($email_or_phone, $country_code) {
+            $query->where(function ($q) use ($email_or_phone) {
+                $q->whereIn('signup_by', ['email', 'both'])
+                    ->where('email', $email_or_phone);
+            })->orWhere(function ($q) use ($email_or_phone, $country_code) {
+                $q->whereIn('signup_by', ['phone', 'both'])
+                    ->where('country_code', $country_code)
+                    ->where('phone', $email_or_phone);
+            });
+        })->first();
 
-        $user = \App\Models\User::where(function ($query1) use($email_or_phone,$country_code) {
-                        $query1->where(function ($query2) use($email_or_phone) {
-                            $query2->whereIn('signup_by', ['email','both'])
-                                  ->where('email',$email_or_phone);
-                        })
-                        ->orWhere(function ($query3) use($email_or_phone,$country_code) {
-                            $query3->whereIn('signup_by', ['phone','both'])
-                                  ->where('country_code',$country_code)
-                                  ->where('phone',$email_or_phone);
-                        });
-                    })
-                    ->first();
-
-        if($user!='')
-        {
-
-            if(Hash::check($this->input('password'), $user->password)) 
-            {
-                Auth::login($user);
-                if(env('USER_ONE_DEVICE_LOGIN'))
-                {
-                    logOutFromOtherDevice();
-                }
-            } 
-            else 
-            {
-                throw ValidationException::withMessages([
-                    'message' => "Invalid phone or password",
-                ]);
-            }
-        }
-        else
-        {
+        if (!$user) {
             throw ValidationException::withMessages([
-                'message' => "Invalid credentials",
+                $auth_index_name => "No account found with this " . ($auth_index_name === 'email_or_phone' ? 'email or phone' : 'email') . ".",
             ]);
         }
 
+        // Step 2: Check password
+        if (!Hash::check($password, $user->password)) {
+            throw ValidationException::withMessages([
+                'password' => 'The provided password is incorrect.',
+            ]);
+        }
+
+        // Step 3: Login the user
+        Auth::login($user);
+
+        if (env('USER_ONE_DEVICE_LOGIN')) {
+            logOutFromOtherDevice(); // custom helper
+        }
     }
 }
